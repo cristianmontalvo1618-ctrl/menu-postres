@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menú Interactivo · Postres & Snacks</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream: #FBF3E7;
+    --paper: #FFFDF9;
+    --cacao: #3C2415;
+    --cacao-soft: #6B4A38;
+    --berry: #8B3A62;
+    --berry-dark: #6E2C4E;
+    --caramel: #D98E3E;
+    --sage: #6B8F71;
+  }
+  body{ font-family:'Inter', sans-serif; background:var(--cream); color:var(--cacao); }
+  .font-display{ font-family:'Fredoka', sans-serif; }
+
+  /* Receipt-style ticket edge for the order panel */
+  .ticket-top{
+    background:
+      radial-gradient(circle at 10px 0, transparent 9px, var(--paper) 9.5px) top left / 20px 20px repeat-x;
+    padding-top: 12px;
+  }
+  .ticket-bottom{
+    background:
+      radial-gradient(circle at 10px 20px, transparent 9px, var(--paper) 9.5px) bottom left / 20px 20px repeat-x;
+    padding-bottom: 12px;
+  }
+  .dashed-divider{ border-top: 2px dashed #D9C9B0; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#E3D2B4; border-radius:8px; }
+
+  .menu-card{
+    position: relative;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    overflow: hidden;
+  }
+  .menu-card:hover{ transform: translateY(-3px); box-shadow: 0 10px 24px -8px rgba(60,36,21,0.25); }
+  .menu-card:active{ transform: translateY(-1px) scale(0.98); }
+
+  .menu-card.cat-snacks{ background: linear-gradient(155deg, #FFF9F0 0%, #FDEFDA 100%); border: 1px solid #F0DDBE; }
+  .menu-card.cat-snacks:hover{ border-color: var(--caramel); }
+  .menu-card.cat-postres{ background: linear-gradient(155deg, #FFF7FA 0%, #FBEAF1 100%); border: 1px solid #F0D3E0; }
+  .menu-card.cat-postres:hover{ border-color: var(--berry); }
+
+  .menu-card::after{
+    content:'';
+    position:absolute; top:-30px; right:-30px;
+    width:80px; height:80px; border-radius:9999px;
+    background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 70%);
+    pointer-events:none;
+  }
+
+  .icon-badge{
+    width: 44px; height: 44px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius: 12px;
+    font-size: 1.4rem;
+    box-shadow: inset 0 0 0 1px rgba(60,36,21,0.06);
+  }
+  .cat-snacks .icon-badge{ background: linear-gradient(155deg, #F7DCAE, #EFC382); }
+  .cat-postres .icon-badge{ background: linear-gradient(155deg, #F3CBDD, #E8A8C6); }
+
+  .price-tag{
+    display:inline-flex; align-items:center;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+  }
+  .cat-snacks .price-tag{ background: rgba(217,142,62,0.15); color:#9C5E1E; }
+  .cat-postres .price-tag{ background: rgba(139,58,98,0.14); color: var(--berry-dark); }
+
+  .add-hint{
+    position:absolute; top:8px; right:8px;
+    width:26px; height:26px; border-radius:9999px;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 0.9rem; font-weight:700;
+    opacity:0; transform: scale(0.6);
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .cat-snacks .add-hint{ background: var(--caramel); color:#fff; }
+  .cat-postres .add-hint{ background: var(--berry); color:#fff; }
+  .menu-card:hover .add-hint{ opacity:1; transform: scale(1); }
+
+  .qty-badge{
+    position:absolute; top:6px; left:6px;
+    min-width:22px; height:22px; padding:0 5px;
+    border-radius:9999px;
+    background: var(--sage); color:#fff;
+    font-size:0.7rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  .qty-btn{ transition: background .12s ease; }
+
+  @keyframes pop-in{
+    0%{ opacity:0; transform: translateY(-6px); }
+    100%{ opacity:1; transform: translateY(0); }
+  }
+  .pop-in{ animation: pop-in .18s ease-out; }
+
+  @media (prefers-reduced-motion: reduce){
+    .menu-card, .qty-btn, .pop-in{ animation:none !important; transition:none !important; }
+  }
+
+  .focus-ring:focus-visible{
+    outline: 3px solid var(--berry);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- HEADER -->
+<header class="bg-[var(--cacao)] text-[var(--cream)] px-4 py-4 sm:px-8 sticky top-0 z-30 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">🍰 Postres & Snacks</h1>
+      <p class="text-xs sm:text-sm text-[var(--cream)]/70 -mt-1">Menú Interactivo</p>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-3 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+  <!-- MENU -->
+  <section class="lg:col-span-2 order-1">
+    <div class="mb-3">
+      <h2 class="font-display text-xl font-semibold text-[var(--cacao)]">Menú</h2>
+      <p class="text-sm text-[var(--cacao-soft)]">Toca un producto para agregarlo a tu orden.</p>
+    </div>
+
+    <div class="mb-4">
+      <h3 class="font-display text-sm uppercase tracking-wide text-[var(--berry)] mb-2">🧂 Snacks</h3>
+      <div id="menuSnacks" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+    </div>
+
+    <div>
+      <h3 class="font-display text-sm uppercase tracking-wide text-[var(--berry)] mb-2">🍓 Postres</h3>
+      <div id="menuPostres" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+    </div>
+  </section>
+
+  <!-- ORDEN ACTUAL (CARRITO) -->
+  <section class="order-2 lg:sticky lg:top-24 self-start pb-10">
+    <div class="ticket-top ticket-bottom bg-[var(--paper)] rounded-2xl shadow-xl overflow-hidden">
+      <div class="px-5 pt-2">
+        <h2 class="font-display text-xl font-semibold text-[var(--cacao)]">🧾 Tu Pedido</h2>
+      </div>
+
+      <div id="orderEmpty" class="px-5 py-8 text-center text-[var(--cacao-soft)]">
+        <p class="text-sm">Aún no hay productos.</p>
+        <p class="text-xs mt-1">Selecciona algo del menú para comenzar.</p>
+      </div>
+
+      <ul id="orderList" class="px-5 flex flex-col gap-3 max-h-[42vh] overflow-y-auto"></ul>
+
+      <div class="px-5 pt-4">
+        <div class="dashed-divider pt-3 flex items-center justify-between">
+          <span class="font-display text-base font-semibold text-[var(--cacao)]">Total</span>
+          <span id="orderTotal" class="font-display text-2xl font-bold text-[var(--berry)]">$0</span>
+        </div>
+      </div>
+
+      <!-- DATOS DEL CLIENTE -->
+      <div class="px-5 pt-4 flex flex-col gap-3">
+        <input type="text" id="clienteNombre" placeholder="Tu nombre..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full outline-none">
+        <textarea id="clienteNotas" placeholder="Notas (ej. sin salsa, para llevar)..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full resize-none h-16 outline-none"></textarea>
+      </div>
+
+      <!-- DATOS DE PAGO (OPCIONAL) -->
+      <div class="px-5 pt-3">
+        <div class="bg-[#F0DDBE]/30 rounded-lg p-3 text-xs text-[var(--cacao-soft)]">
+          <strong>💳 Para pagar con transferencia:</strong><br>
+          Banco: BBVA<br>
+          CLABE: 012345678901234567<br>
+          <em>*Si pagas en efectivo, ignora este mensaje.</em>
+        </div>
+      </div>
+
+      <div class="px-5 pt-4 pb-2 flex flex-col gap-2">
+        <button id="whatsappBtn" class="focus-ring w-full bg-[#25D366] hover:bg-[#20b858] text-white font-display text-lg font-semibold py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+          📲 Enviar por WhatsApp
+        </button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =========================================
+   ⚠️ CONFIGURACIÓN IMPORTANTE ⚠️
+   Pon aquí el número al que llegarán los pedidos.
+   Debe incluir el código de país (52 para México) sin el signo +
+========================================= */
+const NUMERO_WHATSAPP = "525579125499"; 
+
+/* ---------- Datos del menú ---------- */
+const MENU = [
+  { id: 'plat_fritos',  name: 'Plátanos fritos',                  price: 40, emoji: '🍌', cat: 'snacks'   },
+  { id: 'plat_capeados',name: 'Plátanos capeados',                 price: 45, emoji: '🍌', cat: 'snacks'   },
+  { id: 'boneless',     name: 'Boneless',                          price: 90, emoji: '🍗', cat: 'snacks'   },
+  { id: 'papas_franc',  name: 'Papas a la Francesa',               price: 50, emoji: '🍟', cat: 'snacks'   },
+  { id: 'papas_gajo',   name: 'Papas gajo',                        price: 60, emoji: '🥔', cat: 'snacks'   },
+  { id: 'dorilocos',    name: 'Dorilocos',                         price: 50, emoji: '🌶️', cat: 'snacks'   },
+  { id: 'waffle',       name: 'Waffle',                            price: 50, emoji: '🧇', cat: 'postres'  },
+  { id: 'fresas',       name: 'Fresas con crema',                  price: 40, emoji: '🍓', cat: 'postres'  },
+  { id: 'duraznos',     name: 'Duraznos con crema',                price: 35, emoji: '🍑', cat: 'postres'  },
+  { id: 'cheese_zarza', name: 'Cheesecake zarzamora',              price: 50, emoji: '🍰', cat: 'postres'  },
+  { id: 'cheese_choco', name: 'Cheesecake chocolate',              price: 50, emoji: '🍫', cat: 'postres'  },
+  { id: 'flan',         name: 'Flan napolitano',                   price: 40, emoji: '🍮', cat: 'postres'  },
+];
+
+let order = [];
+
+const fmt = n => n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+function renderMenu(){
+  const snacksEl = document.getElementById('menuSnacks');
+  const postresEl = document.getElementById('menuPostres');
+  snacksEl.innerHTML = '';
+  postresEl.innerHTML = '';
+
+  MENU.forEach(item => {
+    const card = document.createElement('button');
+    card.dataset.itemId = item.id;
+    card.className = `menu-card cat-${item.cat} focus-ring rounded-2xl shadow-sm p-3 text-left`;
+    card.innerHTML = `
+      <div class="qty-badge hidden" data-role="qty-badge">0</div>
+      <div class="add-hint" aria-hidden="true">＋</div>
+      <div class="icon-badge mb-2">${item.emoji}</div>
+      <div class="text-sm font-semibold text-[var(--cacao)] leading-snug pr-4">${item.name}</div>
+      <div class="mt-2 price-tag font-display font-semibold">${fmt(item.price)}</div>
+    `;
+    card.addEventListener('click', () => addToOrder(item));
+    (item.cat === 'snacks' ? snacksEl : postresEl).appendChild(card);
+  });
+}
+
+function updateMenuQtyBadges(){
+  document.querySelectorAll('.menu-card').forEach(card => {
+    const id = card.dataset.itemId;
+    const line = order.find(o => o.id === id);
+    const badge = card.querySelector('[data-role="qty-badge"]');
+    if(line && line.qty > 0){
+      badge.textContent = line.qty;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  });
+}
+
+function addToOrder(item){
+  const existing = order.find(o => o.id === item.id);
+  if(existing){
+    existing.qty += 1;
+  } else {
+    order.push({ id: item.id, name: item.name, price: item.price, qty: 1 });
+  }
+  renderOrder();
+}
+
+function changeQty(id, delta){
+  const line = order.find(o => o.id === id);
+  if(!line) return;
+  line.qty += delta;
+  if(line.qty <= 0){
+    order = order.filter(o => o.id !== id);
+  }
+  renderOrder();
+}
+
+function removeLine(id){
+  order = order.filter(o => o.id !== id);
+  renderOrder();
+}
+
+function renderOrder(){
+  const list = document.getElementById('orderList');
+  const empty = document.getElementById('orderEmpty');
+  const whatsappBtn = document.getElementById('whatsappBtn');
+
+  list.innerHTML = '';
+
+  if(order.length === 0){
+    empty.classList.remove('hidden');
+    list.classList.add('hidden');
+    whatsappBtn.disabled = true;
+  } else {
+    empty.classList.add('hidden');
+    list.classList.remove('hidden');
+    whatsappBtn.disabled = false;
+
+    order.forEach(line => {
+      const li = document.createElement('li');
+      li.className = 'pop-in flex items-center gap-2 py-2 border-b border-[var(--cream)] last:border-0';
+      li.innerHTML = `
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-[var(--cacao)] truncate">${line.name}</p>
+          <p class="text-xs text-[var(--cacao-soft)]">${fmt(line.price)} c/u</p>
+        </div>
+        <div class="flex items-center gap-1">
+          <button data-action="dec" class="qty-btn focus-ring w-7 h-7 rounded-full bg-[var(--cream)] hover:bg-[var(--caramel)] hover:text-white font-bold">−</button>
+          <span class="w-6 text-center text-sm font-semibold">${line.qty}</span>
+          <button data-action="inc" class="qty-btn focus-ring w-7 h-7 rounded-full bg-[var(--cream)] hover:bg-[var(--caramel)] hover:text-white font-bold">+</button>
+        </div>
+        <div class="w-16 text-right text-sm font-display font-semibold text-[var(--berry)]">${fmt(line.price * line.qty)}</div>
+        <button data-action="del" class="focus-ring text-[var(--cacao-soft)] hover:text-red-600 pl-1" aria-label="Eliminar ${line.name}">🗑️</button>
+      `;
+      li.querySelector('[data-action="dec"]').addEventListener('click', () => changeQty(line.id, -1));
+      li.querySelector('[data-action="inc"]').addEventListener('click', () => changeQty(line.id, 1));
+      li.querySelector('[data-action="del"]').addEventListener('click', () => removeLine(line.id));
+      list.appendChild(li);
+    });
+  }
+
+  const total = order.reduce((sum, o) => sum + o.price * o.qty, 0);
+  document.getElementById('orderTotal').textContent = fmt(total);
+
+  updateMenuQtyBadges();
+}
+
+function enviarWhatsApp(){
+  if(order.length === 0) return;
+  
+  const nombreInput = document.getElementById('clienteNombre').value.trim();
+  const notas = document.getElementById('clienteNotas').value.trim();
+  const total = order.reduce((sum, o) => sum + o.price * o.qty, 0);
+  
+  const nombre = nombreInput ? nombreInput : 'Cliente';
+
+  let mensaje = `¡Hola! 👋 Soy *${nombre}* y este es mi pedido:\n\n`;
+  
+  order.forEach(o => {
+    mensaje += `▪️ ${o.qty}x ${o.name} - $${o.price * o.qty}\n`;
+  });
+  
+  mensaje += `\n*Total: $${total}*\n`;
+  
+  if(notas) {
+    mensaje += `\n*Notas:* ${notas}\n`;
+  }
+  
+  mensaje += `\n¡Gracias!`;
+
+  const url = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
+}
+
+/* ---------- Inicialización ---------- */
+document.getElementById('whatsappBtn').addEventListener('click', enviarWhatsApp);
+renderMenu();
+renderOrder();
+</script>
+</body>
+</html>
