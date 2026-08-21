@@ -184,8 +184,8 @@
         <button id="btnEfectivo" class="focus-ring w-full bg-[#25D366] hover:bg-[#20b858] text-white font-display text-base sm:text-lg font-semibold py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
           💵 Pedir y pagar en Efectivo
         </button>
-        <button id="btnMercadoPago" class="focus-ring w-full bg-[#009EE3] hover:bg-[#0088C4] text-white font-display text-base sm:text-lg font-semibold py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-          💳 Pedir y pagar en línea
+        <button id="btnTransferencia" class="focus-ring w-full bg-[#009EE3] hover:bg-[#0088C4] text-white font-display text-base sm:text-lg font-semibold py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          💳 Pedir y pagar con Transferencia
         </button>
       </div>
     </div>
@@ -199,7 +199,7 @@
    Pon aquí el número al que llegarán los pedidos.
    Debe incluir el código de país (52 para México) sin el signo +
 ========================================= */
-const NUMERO_WHATSAPP = "525579125499"; 
+const NUMERO_WHATSAPP = "525500000000"; 
 
 /* ---------- Datos del menú ---------- */
 const MENU = [
@@ -286,7 +286,7 @@ function renderOrder(){
   const list = document.getElementById('orderList');
   const empty = document.getElementById('orderEmpty');
   const btnEfectivo = document.getElementById('btnEfectivo');
-  const btnMercadoPago = document.getElementById('btnMercadoPago');
+  const btnTransferencia = document.getElementById('btnTransferencia');
 
   list.innerHTML = '';
 
@@ -294,12 +294,12 @@ function renderOrder(){
     empty.classList.remove('hidden');
     list.classList.add('hidden');
     btnEfectivo.disabled = true;
-    btnMercadoPago.disabled = true;
+    btnTransferencia.disabled = true;
   } else {
     empty.classList.add('hidden');
     list.classList.remove('hidden');
     btnEfectivo.disabled = false;
-    btnMercadoPago.disabled = false;
+    btnTransferencia.disabled = false;
 
     order.forEach(line => {
       const li = document.createElement('li');
@@ -340,24 +340,46 @@ function enviarWhatsApp(metodoPago){
   
   const nombre = nombreInput ? nombreInput : 'Cliente';
 
-  let mensaje = `¡Hola! 👋 Soy *${nombre}* y este es mi pedido:\n\n`;
+  let mensaje = `¡Hola! 👋 Soy *${nombre}* y este es mi pedido:
+
+`;
   
   order.forEach(o => {
-    mensaje += `▪️ ${o.qty}x ${o.name} - $${o.price * o.qty}\n`;
+    mensaje += `▪️ ${o.qty}x ${o.name} - $${o.price * o.qty}
+`;
   });
   
-  mensaje += `\n*Total: $${total}*\n`;
-  mensaje += `*Método de pago:* ${metodoPago}\n`;
+  mensaje += `
+*Total: $${total}*
+`;
+  mensaje += `*Método de pago:* ${metodoPago}
+`;
+  
+  // Si eligió transferencia, agregamos los datos bancarios al mensaje
+  if(metodoPago === '💳 Transferencia') {
+    mensaje += `
+*Datos para transferencia:*
+🏦 Banco: BBVA
+🔢 CLABE: 012345678901234567
+👤 A nombre de: Cristian Uriel
+_(Por favor, envíame tu comprobante por aquí para confirmar el pago)_ 🧾
+`;
+  }
   
   if(direccionInput) {
-    mensaje += `*Dirección de entrega:* ${direccionInput}\n`;
+    mensaje += `
+*Dirección de entrega:* ${direccionInput}
+`;
   }
   
   if(notas) {
-    mensaje += `\n*Notas:* ${notas}\n`;
+    mensaje += `
+*Notas:* ${notas}
+`;
   }
   
-  mensaje += `\n¡Gracias!`;
+  mensaje += `
+¡Gracias!`;
 
   const url = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
   window.open(url, '_blank');
@@ -365,10 +387,14 @@ function enviarWhatsApp(metodoPago){
 
 /* ---------- Inicialización ---------- */
 document.getElementById('btnEfectivo').addEventListener('click', () => enviarWhatsApp('💵 Efectivo'));
-document.getElementById('btnMercadoPago').addEventListener('click', () => enviarWhatsApp('💳 Mercado Pago / En línea'));
+document.getElementById('btnTransferencia').addEventListener('click', () => enviarWhatsApp('💳 Transferencia'));
 
 renderMenu();
 renderOrder();
 </script>
 </body>
 </html>
+  
+
+
+ 
