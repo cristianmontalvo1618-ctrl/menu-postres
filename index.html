@@ -172,22 +172,20 @@
       <!-- DATOS DEL CLIENTE -->
       <div class="px-5 pt-4 flex flex-col gap-3">
         <input type="text" id="clienteNombre" placeholder="Tu nombre..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full outline-none">
-        <textarea id="clienteNotas" placeholder="Notas (ej. sin salsa, para llevar)..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full resize-none h-16 outline-none"></textarea>
+        
+        <!-- NUEVO CAMPO DE DIRECCIÓN -->
+        <input type="text" id="clienteDireccion" placeholder="Dirección o link de Maps (si es a domicilio)..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full outline-none">
+        
+        <textarea id="clienteNotas" placeholder="Notas (ej. sin salsa, paso a recogerlo)..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full resize-none h-16 outline-none"></textarea>
       </div>
 
-      <!-- DATOS DE PAGO (OPCIONAL) -->
-      <div class="px-5 pt-3">
-        <div class="bg-[#F0DDBE]/30 rounded-lg p-3 text-xs text-[var(--cacao-soft)]">
-          <strong>💳 Para pagar con transferencia:</strong><br>
-          Banco: BBVA<br>
-          CLABE: 012345678901234567<br>
-          <em>*Si pagas en efectivo, ignora este mensaje.</em>
-        </div>
-      </div>
-
-      <div class="px-5 pt-4 pb-2 flex flex-col gap-2">
-        <button id="whatsappBtn" class="focus-ring w-full bg-[#25D366] hover:bg-[#20b858] text-white font-display text-lg font-semibold py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-          📲 Enviar por WhatsApp
+      <!-- BOTONES DE PAGO Y ENVÍO -->
+      <div class="px-5 pt-4 pb-4 flex flex-col gap-3">
+        <button id="btnEfectivo" class="focus-ring w-full bg-[#25D366] hover:bg-[#20b858] text-white font-display text-base sm:text-lg font-semibold py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          💵 Pedir y pagar en Efectivo
+        </button>
+        <button id="btnMercadoPago" class="focus-ring w-full bg-[#009EE3] hover:bg-[#0088C4] text-white font-display text-base sm:text-lg font-semibold py-3 rounded-xl shadow-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          💳 Pedir y pagar en línea
         </button>
       </div>
     </div>
@@ -201,7 +199,7 @@
    Pon aquí el número al que llegarán los pedidos.
    Debe incluir el código de país (52 para México) sin el signo +
 ========================================= */
-const NUMERO_WHATSAPP = "525579125499"; 
+const NUMERO_WHATSAPP = "525579145499"; 
 
 /* ---------- Datos del menú ---------- */
 const MENU = [
@@ -287,18 +285,21 @@ function removeLine(id){
 function renderOrder(){
   const list = document.getElementById('orderList');
   const empty = document.getElementById('orderEmpty');
-  const whatsappBtn = document.getElementById('whatsappBtn');
+  const btnEfectivo = document.getElementById('btnEfectivo');
+  const btnMercadoPago = document.getElementById('btnMercadoPago');
 
   list.innerHTML = '';
 
   if(order.length === 0){
     empty.classList.remove('hidden');
     list.classList.add('hidden');
-    whatsappBtn.disabled = true;
+    btnEfectivo.disabled = true;
+    btnMercadoPago.disabled = true;
   } else {
     empty.classList.add('hidden');
     list.classList.remove('hidden');
-    whatsappBtn.disabled = false;
+    btnEfectivo.disabled = false;
+    btnMercadoPago.disabled = false;
 
     order.forEach(line => {
       const li = document.createElement('li');
@@ -329,10 +330,11 @@ function renderOrder(){
   updateMenuQtyBadges();
 }
 
-function enviarWhatsApp(){
+function enviarWhatsApp(metodoPago){
   if(order.length === 0) return;
   
   const nombreInput = document.getElementById('clienteNombre').value.trim();
+  const direccionInput = document.getElementById('clienteDireccion').value.trim();
   const notas = document.getElementById('clienteNotas').value.trim();
   const total = order.reduce((sum, o) => sum + o.price * o.qty, 0);
   
@@ -345,6 +347,11 @@ function enviarWhatsApp(){
   });
   
   mensaje += `\n*Total: $${total}*\n`;
+  mensaje += `*Método de pago:* ${metodoPago}\n`;
+  
+  if(direccionInput) {
+    mensaje += `*Dirección de entrega:* ${direccionInput}\n`;
+  }
   
   if(notas) {
     mensaje += `\n*Notas:* ${notas}\n`;
@@ -357,7 +364,9 @@ function enviarWhatsApp(){
 }
 
 /* ---------- Inicialización ---------- */
-document.getElementById('whatsappBtn').addEventListener('click', enviarWhatsApp);
+document.getElementById('btnEfectivo').addEventListener('click', () => enviarWhatsApp('💵 Efectivo'));
+document.getElementById('btnMercadoPago').addEventListener('click', () => enviarWhatsApp('💳 Mercado Pago / En línea'));
+
 renderMenu();
 renderOrder();
 </script>
