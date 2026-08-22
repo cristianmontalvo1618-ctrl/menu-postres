@@ -219,8 +219,8 @@
       <div class="px-5 pt-4 flex flex-col gap-3">
         <input type="text" id="clienteNombre" placeholder="Tu nombre..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full outline-none">
 
-        <p class="text-[11px] font-semibold text-[var(--sage)] -mb-1">🚚 Servicio a domicilio disponible en pedidos mayores a $150</p>
-        <input type="text" id="clienteDireccion" placeholder="Dirección o link de Maps (si es a domicilio)..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full outline-none">
+        <p id="domicilioAviso" class="text-[11px] font-semibold text-[var(--sage)] -mb-1">🔒 Agrega $150 o más a tu pedido para desbloquear el envío a domicilio</p>
+        <input type="text" id="clienteDireccion" placeholder="Agrega $150 o más para escribir tu dirección..." disabled class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-opacity">
 
         <textarea id="clienteNotas" placeholder="Notas (ej. sin salsa, paso a recogerlo)..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full resize-none h-16 outline-none"></textarea>
       </div>
@@ -262,6 +262,7 @@
    Debe incluir el código de país (52 para México) sin el signo +
 ========================================= */
 const NUMERO_WHATSAPP = "525579125499";
+const MINIMO_DOMICILIO = 150;
 
 /* ---------- Listas de opciones para personalizar ---------- */
 const TOPPINGS_DULCES = [
@@ -571,7 +572,32 @@ function renderOrder(){
   const total = order.reduce((sum, o) => sum + o.price * o.qty, 0);
   document.getElementById('orderTotal').textContent = fmt(total);
 
+  updateDomicilioState(total);
   updateMenuQtyBadges();
+}
+
+function updateDomicilioState(total){
+  const direccionInput = document.getElementById('clienteDireccion');
+  const aviso = document.getElementById('domicilioAviso');
+  const desbloqueado = total >= MINIMO_DOMICILIO;
+
+  direccionInput.disabled = !desbloqueado;
+
+  if(desbloqueado){
+    direccionInput.placeholder = 'Dirección o link de Maps...';
+    aviso.textContent = '🚚 ¡Envío a domicilio desbloqueado! Escribe tu dirección abajo';
+    aviso.classList.remove('text-[var(--sage)]');
+    aviso.classList.add('text-[var(--berry-dark)]');
+  } else {
+    direccionInput.value = '';
+    direccionInput.placeholder = 'Agrega $150 o más para escribir tu dirección...';
+    const faltante = MINIMO_DOMICILIO - total;
+    aviso.textContent = total > 0
+      ? `🔒 Agrega ${fmt(faltante)} más a tu pedido para desbloquear el envío a domicilio`
+      : '🔒 Agrega $150 o más a tu pedido para desbloquear el envío a domicilio';
+    aviso.classList.remove('text-[var(--berry-dark)]');
+    aviso.classList.add('text-[var(--sage)]');
+  }
 }
 
 function enviarWhatsApp(metodoPago){
@@ -595,10 +621,6 @@ function enviarWhatsApp(metodoPago){
 
   mensaje += `\n*Total: $${total}*\n`;
   mensaje += `*Método de pago:* ${metodoPago}\n`;
-
-  if(metodoPago === '💳 Transferencia') {
-    mensaje += `\n*Datos para transferencia:*\n🏦 Banco: Mercado Pago\n🔢 CLABE: 72296901027432844\n👤 A nombre de: Cristian Uriel\n_(Por favor, envíame tu comprobante por aquí para confirmar el pago)_ 🧾\n`;
-  }
 
   if(direccionInput) {
     mensaje += `\n*Dirección de entrega:* ${direccionInput}\n`;
