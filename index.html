@@ -11,32 +11,28 @@
   :root{
     --cream: #FBF3E7;
     --paper: #FFFDF9;
-    --cacao: #1F3B2E;       /* verde profundo (antes cacao) */
-    --cacao-soft: #6F4E37;   /* sepia (antes cacao-soft) */
-    --berry: #2F5233;        /* verde profundo, acento principal (antes berry/rosa) */
+    --cacao: #1F3B2E;
+    --cacao-soft: #6F4E37;
+    --berry: #2F5233;
     --berry-dark: #16281F;
-    --caramel: #D9A62E;      /* amarillo bario, acento secundario (antes caramelo) */
-    --sage: #8A6642;         /* sepia claro (antes verde salvia) */
+    --caramel: #D9A62E;
+    --sage: #8A6642;
   }
   body{ font-family:'Inter', sans-serif; background:var(--cream); color:var(--cacao); }
   .font-display{ font-family:'Fredoka', sans-serif; }
 
-  /* Receipt-style ticket edge for the order panel */
   .ticket-top{
-    background:
-      radial-gradient(circle at 10px 0, transparent 9px, var(--paper) 9.5px) top left / 20px 20px repeat-x;
+    background: radial-gradient(circle at 10px 0, transparent 9px, var(--paper) 9.5px) top left / 20px 20px repeat-x;
     padding-top: 12px;
   }
   .ticket-bottom{
-    background:
-      radial-gradient(circle at 10px 20px, transparent 9px, var(--paper) 9.5px) bottom left / 20px 20px repeat-x;
+    background: radial-gradient(circle at 10px 20px, transparent 9px, var(--paper) 9.5px) bottom left / 20px 20px repeat-x;
     padding-bottom: 12px;
   }
   .dashed-divider{ border-top: 2px dashed #D9C9B0; }
   ::-webkit-scrollbar{ width:8px; height:8px; }
   ::-webkit-scrollbar-thumb{ background:#E3D2B4; border-radius:8px; }
 
-  /* HEADER */
   .header-bg{
     background: radial-gradient(1200px 220px at 10% -40%, #16281F 0%, transparent 60%),
                 radial-gradient(1200px 260px at 100% -60%, #6F4E37 0%, transparent 55%),
@@ -255,7 +251,7 @@
   </div>
 </footer>
 
-<!-- MODAL DE PERSONALIZACIÓN (toppings / salsas / tipo de Doritos) -->
+<!-- MODAL DE PERSONALIZACIÓN -->
 <div id="toppingModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[var(--cacao)]/60 p-4">
   <div class="modal-in bg-[var(--paper)] rounded-2xl shadow-2xl max-w-md w-full p-5 max-h-[88vh] flex flex-col">
     <div class="flex items-start justify-between mb-2 gap-3">
@@ -271,16 +267,27 @@
   </div>
 </div>
 
-<script>
-/* =========================================
-   ⚠️ CONFIGURACIÓN IMPORTANTE ⚠️
-   Pon aquí el número al que llegarán los pedidos.
-   Debe incluir el código de país (52 para México) sin el signo +
-========================================= */
+<!-- SDK DE FIREBASE Y LÓGICA -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6TrIIVAFJ96F0LLimPDC4M4Htbo7PF8",
+  authDomain: "las-3-delicias.firebaseapp.com",
+  projectId: "las-3-delicias",
+  storageBucket: "las-3-delicias.firebasestorage.app",
+  messagingSenderId: "336278281990",
+  appId: "1:336278281990:web:3adda177122a6992774887",
+  measurementId: "G-F54DQ7C2W7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const NUMERO_WHATSAPP = "525579125499";
 const MINIMO_DOMICILIO = 150;
 
-/* ---------- Listas de opciones para personalizar ---------- */
 const TOPPINGS_DULCES = [
   'Chispas de chocolate', 'Chispas de colores', 'Nuez', 'Granola',
   'Gotas de chocolate', 'Bombones', 'Lunetas', 'Krunchis',
@@ -289,9 +296,7 @@ const TOPPINGS_DULCES = [
 ];
 
 const TOPPINGS_PLATANOS = ['Crema', 'Lechera', 'Granillo de chocolate', 'Mermelada de fresa'];
-
 const SALSAS_BONELESS = ['BBQ', 'Mango Habanero', 'Fresa Hot'];
-
 const TIPOS_DORITOS = ['Nacho', 'Flamin Hot', 'Tostitos'];
 
 const TOPPINGS_DORILOCOS = [
@@ -300,45 +305,43 @@ const TOPPINGS_DORILOCOS = [
   'Salsa valentina', 'Salsa botanera', 'Tajín', 'Chamoy', 'Miguelito'
 ];
 
-/* Emoji para mostrar cada grupo en el carrito y en el mensaje de WhatsApp */
 const GROUP_ICON = { toppings: '🧁', salsas: '🌶️', doritos: '🌽', dorilocos_toppings: '🧂' };
 
-/* ---------- Datos del menú ---------- */
 const MENU = [
-  { id: 'plat_fritos',  name: 'Plátanos fritos',      price: 40, emoji: '🍌', cat: 'snacks',
+  { id: 'plat_fritos', name: 'Plátanos fritos', price: 40, emoji: '🍌', cat: 'snacks',
     customizeLabel: '🧁 Elige tus toppings',
     customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_PLATANOS } ] } },
 
-  { id: 'plat_capeados',name: 'Plátanos capeados',    price: 45, emoji: '🍌', cat: 'snacks',
+  { id: 'plat_capeados', name: 'Plátanos capeados', price: 45, emoji: '🍌', cat: 'snacks',
     customizeLabel: '🧁 Elige tus toppings',
     customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_PLATANOS } ] } },
 
-  { id: 'boneless',     name: 'Boneless',              price: 90, emoji: '🍗', cat: 'snacks',
+  { id: 'boneless', name: 'Boneless', price: 90, emoji: '🍗', cat: 'snacks',
     customizeLabel: '🌶️ Elige tu salsa',
     customize: { groups: [ { id: 'salsas', label: 'Salsas', type: 'multi', min: 1, max: SALSAS_BONELESS.length, options: SALSAS_BONELESS } ] } },
 
-  { id: 'papas_franc',  name: 'Papas a la Francesa',   price: 50, emoji: '🍟', cat: 'snacks' },
+  { id: 'papas_franc', name: 'Papas a la Francesa', price: 50, emoji: '🍟', cat: 'snacks' },
 
-  { id: 'dorilocos',    name: 'Dorilocos',             price: 50, emoji: '🌶️', cat: 'snacks',
+  { id: 'dorilocos', name: 'Dorilocos', price: 50, emoji: '🌶️', cat: 'snacks',
     customizeLabel: '🌽 Personalízalo',
     customize: { groups: [
       { id: 'doritos', label: 'Tipo de Doritos', type: 'single', min: 1, max: 1, options: TIPOS_DORITOS },
       { id: 'dorilocos_toppings', label: 'Toppings', type: 'multi', min: 1, max: TOPPINGS_DORILOCOS.length, options: TOPPINGS_DORILOCOS }
     ] } },
 
-  { id: 'waffle',       name: 'Waffle',                 price: 50, emoji: '🧇', cat: 'postres',
+  { id: 'waffle', name: 'Waffle', price: 50, emoji: '🧇', cat: 'postres',
     customizeLabel: '🧁 Elige tus toppings',
     customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
 
-  { id: 'fresas',       name: 'Fresas con crema',       price: 40, emoji: '🍓', cat: 'postres',
+  { id: 'fresas', name: 'Fresas con crema', price: 40, emoji: '🍓', cat: 'postres',
     customizeLabel: '🧁 Elige tus toppings',
     customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
 
-  { id: 'duraznos',     name: 'Duraznos con crema',     price: 35, emoji: '🍑', cat: 'postres',
+  { id: 'duraznos', name: 'Duraznos con crema', price: 35, emoji: '🍑', cat: 'postres',
     customizeLabel: '🧁 Elige tus toppings',
     customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
 
-  { id: 'fruta_crema',  name: 'Fruta con crema',        price: 40, emoji: '🍇', cat: 'postres',
+  { id: 'fruta_crema', name: 'Fruta con crema', price: 40, emoji: '🍇', cat: 'postres',
     customizeLabel: '🧁 Elige tus toppings',
     customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
 
@@ -346,13 +349,13 @@ const MENU = [
     customizeLabel: '🧁 Elige tus toppings',
     customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
 
-  { id: 'cheese_zarza', name: 'Cheesecake zarzamora',   price: 50, emoji: '🍰', cat: 'postres' },
-  { id: 'cheese_choco', name: 'Cheesecake chocolate',   price: 50, emoji: '🍫', cat: 'postres' },
+  { id: 'cheese_zarza', name: 'Cheesecake zarzamora', price: 50, emoji: '🍰', cat: 'postres' },
+  { id: 'cheese_choco', name: 'Cheesecake chocolate', price: 50, emoji: '🍫', cat: 'postres' },
 ];
 
 let order = [];
 let pendingItem = null;
-let selections = {}; // { groupId: [valores seleccionados] }
+let selections = {};
 
 const fmt = n => n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
@@ -440,7 +443,6 @@ function removeLine(lineId){
   renderOrder();
 }
 
-/* ---------- Modal de personalización (grupos dinámicos) ---------- */
 function groupHint(g){
   if(g.type === 'single') return 'Elige 1';
   if(g.min === g.max) return `Elige ${g.min}`;
@@ -547,7 +549,6 @@ document.getElementById('toppingConfirm').addEventListener('click', () => {
   closeCustomizeModal();
 });
 
-/* ---------- Render del pedido ---------- */
 function renderOrder(){
   const list = document.getElementById('orderList');
   const empty = document.getElementById('orderEmpty');
@@ -622,16 +623,52 @@ function updateDomicilioState(total){
   }
 }
 
-function enviarWhatsApp(metodoPago){
+async function procesarYEnviarPedido(metodoPago){
   if(order.length === 0) return;
+
+  const btnEfectivo = document.getElementById('btnEfectivo');
+  const btnTransferencia = document.getElementById('btnTransferencia');
+  btnEfectivo.disabled = true;
+  btnTransferencia.disabled = true;
 
   const nombreInput = document.getElementById('clienteNombre').value.trim();
   const direccionInput = document.getElementById('clienteDireccion').value.trim();
   const notas = document.getElementById('clienteNotas').value.trim();
   const total = order.reduce((sum, o) => sum + o.price * o.qty, 0);
-
   const nombre = nombreInput ? nombreInput : 'Cliente';
+  const tipoEntrega = direccionInput ? 'A Domicilio' : 'Recoger en local';
 
+  // 1. Guardar el pedido en Firebase para que llegue a tu panel
+  try {
+    const productosFormateados = order.map(o => {
+      let desc = o.name;
+      if (o.customizations && o.customizations.length > 0) {
+        const det = o.customizations.map(c => `${c.label}: ${c.values.join(', ')}`).join(' | ');
+        desc += ` (${det})`;
+      }
+      return {
+        cant: o.qty,
+        nombre: desc,
+        precioUnitario: o.price
+      };
+    });
+
+    await addDoc(collection(db, "pedidos"), {
+      cliente: nombre,
+      tipoEntrega: tipoEntrega,
+      direccion: direccionInput || "",
+      notas: notas || "",
+      metodoPago: metodoPago,
+      total: total,
+      estado: "Pendiente",
+      fecha: serverTimestamp(),
+      productos: productosFormateados
+    });
+  } catch (error) {
+    console.error("Error al registrar pedido en base de datos:", error);
+  }
+
+  // 2. Construir mensaje y abrir WhatsApp
   let mensaje = `¡Hola! 👋 Soy *${nombre}* y este es mi pedido en *Las Tres Delicias*:\n\n`;
 
   order.forEach(o => {
@@ -656,11 +693,14 @@ function enviarWhatsApp(metodoPago){
 
   const url = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
   window.open(url, '_blank');
+
+  btnEfectivo.disabled = false;
+  btnTransferencia.disabled = false;
 }
 
 /* ---------- Inicialización ---------- */
-document.getElementById('btnEfectivo').addEventListener('click', () => enviarWhatsApp('💵 Efectivo'));
-document.getElementById('btnTransferencia').addEventListener('click', () => enviarWhatsApp('💳 Transferencia'));
+document.getElementById('btnEfectivo').addEventListener('click', () => procesarYEnviarPedido('💵 Efectivo'));
+document.getElementById('btnTransferencia').addEventListener('click', () => procesarYEnviarPedido('💳 Transferencia'));
 
 renderMenu();
 renderOrder();
