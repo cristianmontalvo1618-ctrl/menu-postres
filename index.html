@@ -121,7 +121,6 @@
 
   .qty-btn{ transition: background .12s ease, transform .1s ease; }
   .qty-btn:active{ transform: scale(0.88); }
-
   .btn-pay{ transition: background-color .15s ease, transform .1s ease, box-shadow .15s ease; }
   .btn-pay:active:not(:disabled){ transform: scale(0.97); }
   .btn-pay:hover:not(:disabled){ box-shadow: 0 8px 18px -6px rgba(0,0,0,0.35); }
@@ -140,26 +139,17 @@
 
   .topping-chip{ transition: background-color .12s ease, border-color .12s ease, color .12s ease; }
 
-  @media (prefers-reduced-motion: reduce){
-    .menu-card, .qty-btn, .pop-in, .modal-in, .btn-pay{ animation:none !important; transition:none !important; }
-  }
-
   .focus-ring:focus-visible{
     outline: 3px solid var(--berry);
     outline-offset: 2px;
   }
-
-  .social-link{ transition: color .15s ease, transform .15s ease; }
-  .social-link:hover{ color: var(--caramel); transform: translateY(-2px); }
 </style>
 </head>
 <body class="min-h-screen">
 
-<!-- HEADER -->
 <header class="header-bg text-[var(--cream)] px-4 pt-5 sm:px-8 sticky top-0 z-30 shadow-lg">
   <div class="max-w-7xl mx-auto flex items-center justify-between pb-4">
     <div class="flex items-center gap-3">
-      <img src="data:image/png;base64,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" alt="Logo Las Tres Delicias" class="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md">
       <div>
         <h1 class="font-display text-2xl sm:text-4xl font-semibold tracking-tight">Las Tres Delicias</h1>
         <p class="text-xs sm:text-sm text-[var(--cream)]/70 mt-0.5">Postres & Snacks · Menú Interactivo</p>
@@ -175,7 +165,6 @@
 
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-  <!-- MENU -->
   <section class="lg:col-span-2 order-1">
     <div class="mb-3">
       <h2 class="font-display text-xl font-semibold text-[var(--cacao)]">Menú</h2>
@@ -184,16 +173,19 @@
 
     <div class="mb-4">
       <h3 class="font-display text-sm uppercase tracking-wide text-[var(--berry)] mb-2">🧂 Snacks</h3>
-      <div id="menuSnacks" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+      <div id="menuSnacks" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <p class="text-xs text-gray-500 col-span-3">Cargando productos...</p>
+      </div>
     </div>
 
     <div>
       <h3 class="font-display text-sm uppercase tracking-wide text-[var(--berry)] mb-2">🍓 Postres</h3>
-      <div id="menuPostres" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+      <div id="menuPostres" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <p class="text-xs text-gray-500 col-span-3">Cargando productos...</p>
+      </div>
     </div>
   </section>
 
-  <!-- ORDEN ACTUAL (CARRITO) -->
   <section class="order-2 lg:sticky lg:top-32 self-start pb-10">
     <div class="ticket-top ticket-bottom bg-[var(--paper)] rounded-2xl shadow-xl overflow-hidden">
       <div class="px-5 pt-2">
@@ -214,7 +206,6 @@
         </div>
       </div>
 
-      <!-- DATOS DEL CLIENTE -->
       <div class="px-5 pt-4 flex flex-col gap-3">
         <input type="text" id="clienteNombre" placeholder="Tu nombre..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full outline-none">
 
@@ -224,7 +215,6 @@
         <textarea id="clienteNotas" placeholder="Notas (ej. sin salsa, paso a recogerlo)..." class="focus-ring border border-[#E3D2B4] rounded-xl px-3 py-2 bg-[var(--cream)] text-[var(--cacao)] text-sm w-full resize-none h-16 outline-none"></textarea>
       </div>
 
-      <!-- BOTONES DE PAGO Y ENVÍO -->
       <div class="px-5 pt-4 pb-4 flex flex-col gap-3">
         <button id="btnEfectivo" class="btn-pay focus-ring w-full bg-[#25D366] hover:bg-[#20b858] text-white font-display text-base sm:text-lg font-semibold py-3 rounded-xl shadow-md disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
           💵 Pedir y pagar en Efectivo
@@ -238,27 +228,13 @@
 
 </main>
 
-<!-- REDES SOCIALES -->
-<footer class="mt-4 py-8 px-4 bg-[var(--cacao)] text-[var(--cream)] text-center">
-  <p class="font-display text-sm sm:text-base mb-3 text-[var(--cream)]/80">Síguenos</p>
-  <div class="flex items-center justify-center gap-8 text-sm sm:text-base font-semibold">
-    <a href="https://www.facebook.com/share/19WNcqMB58/" target="_blank" rel="noopener noreferrer" class="social-link focus-ring inline-flex items-center gap-2">
-      📘 Facebook
-    </a>
-    <a href="https://www.instagram.com/las_3_delicias20?igsi=a29hMHBldjA5NDYw" target="_blank" rel="noopener noreferrer" class="social-link focus-ring inline-flex items-center gap-2">
-      📸 Instagram
-    </a>
-  </div>
-</footer>
-
-<!-- MODAL DE PERSONALIZACIÓN -->
 <div id="toppingModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[var(--cacao)]/60 p-4">
   <div class="modal-in bg-[var(--paper)] rounded-2xl shadow-2xl max-w-md w-full p-5 max-h-[88vh] flex flex-col">
     <div class="flex items-start justify-between mb-2 gap-3">
       <div>
         <h3 id="toppingModalTitle" class="font-display text-lg sm:text-xl font-semibold text-[var(--cacao)]">Personaliza tu producto</h3>
       </div>
-      <button id="toppingModalClose" class="focus-ring text-[var(--cacao-soft)] hover:text-red-600 text-xl leading-none rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/5 flex-none" aria-label="Cerrar">✕</button>
+      <button id="toppingModalClose" class="focus-ring text-[var(--cacao-soft)] hover:text-red-600 text-xl leading-none rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/5 flex-none">✕</button>
     </div>
     <div id="toppingGroups" class="flex flex-col gap-4 overflow-y-auto pr-1"></div>
     <button id="toppingConfirm" class="focus-ring w-full mt-4 bg-[var(--berry)] hover:bg-[var(--berry-dark)] text-white font-display font-semibold py-3 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-none">
@@ -267,10 +243,9 @@
   </div>
 </div>
 
-<!-- SDK DE FIREBASE Y LÓGICA -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA6TrIIVAFJ96F0LLimPDC4M4Htbo7PF8",
@@ -288,82 +263,66 @@ const db = getFirestore(app);
 const NUMERO_WHATSAPP = "525579125499";
 const MINIMO_DOMICILIO = 150;
 
-const TOPPINGS_DULCES = [
-  'Chispas de chocolate', 'Chispas de colores', 'Nuez', 'Granola',
-  'Gotas de chocolate', 'Bombones', 'Lunetas', 'Krunchis',
-  'Coco rallado', 'Oreo', 'Nutella', 'Mermelada de fresa',
-  'Miel', 'Lechera', 'Fresas', 'Plátano'
-];
-
+const TOPPINGS_DULCES = ['Chispas de chocolate', 'Chispas de colores', 'Nuez', 'Granola', 'Gotas de chocolate', 'Bombones', 'Lunetas', 'Krunchis', 'Coco rallado', 'Oreo', 'Nutella', 'Mermelada de fresa', 'Miel', 'Lechera', 'Fresas', 'Plátano'];
 const TOPPINGS_PLATANOS = ['Crema', 'Lechera', 'Granillo de chocolate', 'Mermelada de fresa'];
 const SALSAS_BONELESS = ['BBQ', 'Mango Habanero', 'Fresa Hot'];
 const TIPOS_DORITOS = ['Nacho', 'Flamin Hot', 'Tostitos'];
-
-const TOPPINGS_DORILOCOS = [
-  'Jícama', 'Zanahoria', 'Pepino', 'Cueritos',
-  'Cacahuates japoneses/picositos', 'Gomitas', 'Churritos',
-  'Salsa valentina', 'Salsa botanera', 'Tajín', 'Chamoy', 'Miguelito'
-];
+const TOPPINGS_DORILOCOS = ['Jícama', 'Zanahoria', 'Pepino', 'Cueritos', 'Cacahuates japoneses/picositos', 'Gomitas', 'Churritos', 'Salsa valentina', 'Salsa botanera', 'Tajín', 'Chamoy', 'Miguelito'];
 
 const GROUP_ICON = { toppings: '🧁', salsas: '🌶️', doritos: '🌽', dorilocos_toppings: '🧂' };
 
-const MENU = [
-  { id: 'plat_fritos', name: 'Plátanos fritos', price: 40, emoji: '🍌', cat: 'snacks',
-    customizeLabel: '🧁 Elige tus toppings',
-    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_PLATANOS } ] } },
+const CUSTOM_CONFIGS = {
+  'toppings_platanos': { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_PLATANOS } ] },
+  'boneless': { groups: [ { id: 'salsas', label: 'Salsas', type: 'multi', min: 1, max: SALSAS_BONELESS.length, options: SALSAS_BONELESS } ] },
+  'dorilocos': { groups: [ { id: 'doritos', label: 'Tipo de Doritos', type: 'single', min: 1, max: 1, options: TIPOS_DORITOS }, { id: 'dorilocos_toppings', label: 'Toppings', type: 'multi', min: 1, max: TOPPINGS_DORILOCOS.length, options: TOPPINGS_DORILOCOS } ] },
+  'toppings_dulces': { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] }
+};
 
-  { id: 'plat_capeados', name: 'Plátanos capeados', price: 45, emoji: '🍌', cat: 'snacks',
-    customizeLabel: '🧁 Elige tus toppings',
-    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_PLATANOS } ] } },
-
-  { id: 'boneless', name: 'Boneless', price: 90, emoji: '🍗', cat: 'snacks',
-    customizeLabel: '🌶️ Elige tu salsa',
-    customize: { groups: [ { id: 'salsas', label: 'Salsas', type: 'multi', min: 1, max: SALSAS_BONELESS.length, options: SALSAS_BONELESS } ] } },
-
-  { id: 'papas_franc', name: 'Papas a la Francesa', price: 50, emoji: '🍟', cat: 'snacks' },
-
-  { id: 'dorilocos', name: 'Dorilocos', price: 50, emoji: '🌶️', cat: 'snacks',
-    customizeLabel: '🌽 Personalízalo',
-    customize: { groups: [
-      { id: 'doritos', label: 'Tipo de Doritos', type: 'single', min: 1, max: 1, options: TIPOS_DORITOS },
-      { id: 'dorilocos_toppings', label: 'Toppings', type: 'multi', min: 1, max: TOPPINGS_DORILOCOS.length, options: TOPPINGS_DORILOCOS }
-    ] } },
-
-  { id: 'waffle', name: 'Waffle', price: 50, emoji: '🧇', cat: 'postres',
-    customizeLabel: '🧁 Elige tus toppings',
-    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
-
-  { id: 'fresas', name: 'Fresas con crema', price: 40, emoji: '🍓', cat: 'postres',
-    customizeLabel: '🧁 Elige tus toppings',
-    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
-
-  { id: 'duraznos', name: 'Duraznos con crema', price: 35, emoji: '🍑', cat: 'postres',
-    customizeLabel: '🧁 Elige tus toppings',
-    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
-
-  { id: 'fruta_crema', name: 'Fruta con crema', price: 40, emoji: '🍇', cat: 'postres',
-    customizeLabel: '🧁 Elige tus toppings',
-    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
-
-  { id: 'gelatina_mango', name: 'Gelatina de mango con coco y fruta de mango', price: 40, emoji: '🥭', cat: 'postres',
-    customizeLabel: '🧁 Elige tus toppings',
-    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
-
-  { id: 'cheese_zarza', name: 'Cheesecake zarzamora', price: 50, emoji: '🍰', cat: 'postres' },
-  { id: 'cheese_choco', name: 'Cheesecake chocolate', price: 50, emoji: '🍫', cat: 'postres' },
-];
-
+let MENU = [];
 let order = [];
 let pendingItem = null;
 let selections = {};
 
 const fmt = n => n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
+// LECTURA EN TIEMPO REAL DESDE FIREBASE
+onSnapshot(collection(db, "productos"), (snapshot) => {
+  MENU = [];
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (data.disponible !== false) {
+      let custom = null;
+      let label = '';
+      if (data.customType && CUSTOM_CONFIGS[data.customType]) {
+        custom = CUSTOM_CONFIGS[data.customType];
+        label = data.customType === 'boneless' ? '🌶️ Elige tu salsa' : (data.customType === 'dorilocos' ? '🌽 Personalízalo' : '🧁 Elige tus toppings');
+      }
+      MENU.push({
+        id: doc.id,
+        name: data.name,
+        price: Number(data.price),
+        emoji: data.emoji || '🍴',
+        cat: (data.cat || 'postres').toLowerCase(),
+        customize: custom,
+        customizeLabel: label
+      });
+    }
+  });
+  renderMenu();
+  updateMenuQtyBadges();
+});
+
 function renderMenu(){
   const snacksEl = document.getElementById('menuSnacks');
   const postresEl = document.getElementById('menuPostres');
   snacksEl.innerHTML = '';
   postresEl.innerHTML = '';
+
+  const snacks = MENU.filter(i => i.cat === 'snacks');
+  const postres = MENU.filter(i => i.cat === 'postres');
+
+  if(snacks.length === 0) snacksEl.innerHTML = '<p class="text-xs text-gray-400 col-span-2 sm:col-span-3">No hay snacks disponibles por ahora.</p>';
+  if(postres.length === 0) postresEl.innerHTML = '<p class="text-xs text-gray-400 col-span-2 sm:col-span-3">No hay postres disponibles por ahora.</p>';
 
   MENU.forEach(item => {
     const card = document.createElement('button');
@@ -396,11 +355,13 @@ function updateMenuQtyBadges(){
     const id = card.dataset.itemId;
     const totalQty = order.filter(o => o.id === id).reduce((s, o) => s + o.qty, 0);
     const badge = card.querySelector('[data-role="qty-badge"]');
-    if(totalQty > 0){
-      badge.textContent = totalQty;
-      badge.classList.remove('hidden');
-    } else {
-      badge.classList.add('hidden');
+    if(badge) {
+      if(totalQty > 0){
+        badge.textContent = totalQty;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
     }
   });
 }
@@ -414,16 +375,11 @@ function addToOrder(item){
 }
 
 function addLineToOrder(item, customizations){
-  const key = customizations
-    .map(c => `${c.id}:${c.values.slice().sort().join(',')}`)
-    .join('|');
+  const key = customizations.map(c => `${c.id}:${c.values.slice().sort().join(',')}`).join('|');
   const lineId = key ? `${item.id}::${key}` : item.id;
   const existing = order.find(o => o.lineId === lineId);
-  if(existing){
-    existing.qty += 1;
-  } else {
-    order.push({ lineId, id: item.id, name: item.name, price: item.price, qty: 1, customizations });
-  }
+  if(existing) existing.qty += 1;
+  else order.push({ lineId, id: item.id, name: item.name, price: item.price, qty: 1, customizations });
   flashCard(item.id);
   renderOrder();
 }
@@ -432,9 +388,7 @@ function changeQty(lineId, delta){
   const line = order.find(o => o.lineId === lineId);
   if(!line) return;
   line.qty += delta;
-  if(line.qty <= 0){
-    order = order.filter(o => o.lineId !== lineId);
-  }
+  if(line.qty <= 0) order = order.filter(o => o.lineId !== lineId);
   renderOrder();
 }
 
@@ -502,13 +456,9 @@ function renderCustomizeGroups(){
         <span>${opt}</span>
       `;
       label.querySelector('input').addEventListener('change', (e) => {
-        if(g.type === 'single'){
-          selections[g.id] = e.target.checked ? [opt] : [];
-        } else if(e.target.checked){
-          if(selectedForGroup.length < g.max) selections[g.id].push(opt);
-        } else {
-          selections[g.id] = selections[g.id].filter(v => v !== opt);
-        }
+        if(g.type === 'single') selections[g.id] = e.target.checked ? [opt] : [];
+        else if(e.target.checked) { if(selectedForGroup.length < g.max) selections[g.id].push(opt); }
+        else selections[g.id] = selections[g.id].filter(v => v !== opt);
         renderCustomizeGroups();
       });
       grid.appendChild(label);
@@ -527,24 +477,14 @@ function renderCustomizeGroups(){
 }
 
 document.getElementById('toppingModalClose').addEventListener('click', closeCustomizeModal);
-document.getElementById('toppingModal').addEventListener('click', (e) => {
-  if(e.target.id === 'toppingModal') closeCustomizeModal();
-});
-document.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape') closeCustomizeModal();
-});
+document.getElementById('toppingModal').addEventListener('click', (e) => { if(e.target.id === 'toppingModal') closeCustomizeModal(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeCustomizeModal(); });
+
 document.getElementById('toppingConfirm').addEventListener('click', () => {
   if(!pendingItem) return;
-  const allValid = pendingItem.customize.groups.every(g => {
-    const count = selections[g.id].length;
-    return g.type === 'single' ? count === 1 : (count >= g.min && count <= g.max);
-  });
-  if(!allValid) return;
-
   const customizations = pendingItem.customize.groups
     .map(g => ({ id: g.id, label: g.label, values: [...selections[g.id]] }))
     .filter(c => c.values.length > 0);
-
   addLineToOrder(pendingItem, customizations);
   closeCustomizeModal();
 });
@@ -583,7 +523,7 @@ function renderOrder(){
           <button data-action="inc" class="qty-btn focus-ring w-7 h-7 rounded-full bg-[var(--cream)] hover:bg-[var(--caramel)] hover:text-white font-bold">+</button>
         </div>
         <div class="w-16 text-right text-sm font-display font-semibold text-[var(--berry)] mt-1">${fmt(line.price * line.qty)}</div>
-        <button data-action="del" class="focus-ring text-[var(--cacao-soft)] hover:text-red-600 pl-1 mt-1" aria-label="Eliminar ${line.name}">🗑️</button>
+        <button data-action="del" class="focus-ring text-[var(--cacao-soft)] hover:text-red-600 pl-1 mt-1">🗑️</button>
       `;
       li.querySelector('[data-action="dec"]').addEventListener('click', () => changeQty(line.lineId, -1));
       li.querySelector('[data-action="inc"]').addEventListener('click', () => changeQty(line.lineId, 1));
@@ -623,7 +563,7 @@ function updateDomicilioState(total){
   }
 }
 
-async function procesarYEnviarPedido(metodoPago){
+async function procesarPedido(metodoPago){
   if(order.length === 0) return;
 
   const btnEfectivo = document.getElementById('btnEfectivo');
@@ -631,14 +571,12 @@ async function procesarYEnviarPedido(metodoPago){
   btnEfectivo.disabled = true;
   btnTransferencia.disabled = true;
 
-  const nombreInput = document.getElementById('clienteNombre').value.trim();
-  const direccionInput = document.getElementById('clienteDireccion').value.trim();
+  const nombre = document.getElementById('clienteNombre').value.trim() || 'Cliente';
+  const direccion = document.getElementById('clienteDireccion').value.trim();
   const notas = document.getElementById('clienteNotas').value.trim();
   const total = order.reduce((sum, o) => sum + o.price * o.qty, 0);
-  const nombre = nombreInput ? nombreInput : 'Cliente';
-  const tipoEntrega = direccionInput ? 'A Domicilio' : 'Recoger en local';
+  const tipoEntrega = direccion ? 'A Domicilio' : 'Recoger en local';
 
-  // 1. Guardar el pedido en Firebase para que llegue a tu panel
   try {
     const productosFormateados = order.map(o => {
       let desc = o.name;
@@ -646,17 +584,13 @@ async function procesarYEnviarPedido(metodoPago){
         const det = o.customizations.map(c => `${c.label}: ${c.values.join(', ')}`).join(' | ');
         desc += ` (${det})`;
       }
-      return {
-        cant: o.qty,
-        nombre: desc,
-        precioUnitario: o.price
-      };
+      return { cant: o.qty, nombre: desc, precioUnitario: o.price };
     });
 
     await addDoc(collection(db, "pedidos"), {
       cliente: nombre,
       tipoEntrega: tipoEntrega,
-      direccion: direccionInput || "",
+      direccion: direccion || "",
       notas: notas || "",
       metodoPago: metodoPago,
       total: total,
@@ -665,44 +599,31 @@ async function procesarYEnviarPedido(metodoPago){
       productos: productosFormateados
     });
   } catch (error) {
-    console.error("Error al registrar pedido en base de datos:", error);
+    console.error("Error al registrar pedido en Firebase:", error);
   }
 
-  // 2. Construir mensaje y abrir WhatsApp
   let mensaje = `¡Hola! 👋 Soy *${nombre}* y este es mi pedido en *Las Tres Delicias*:\n\n`;
-
   order.forEach(o => {
     mensaje += `▪️ ${o.qty}x ${o.name} - $${o.price * o.qty}\n`;
     (o.customizations || []).forEach(c => {
       mensaje += `   ${GROUP_ICON[c.id] || '✨'} ${c.label}: ${c.values.join(', ')}\n`;
     });
   });
-
   mensaje += `\n*Total: $${total}*\n`;
   mensaje += `*Método de pago:* ${metodoPago}\n`;
-
-  if(direccionInput) {
-    mensaje += `\n*Dirección de entrega:* ${direccionInput}\n`;
-  }
-
-  if(notas) {
-    mensaje += `\n*Notas:* ${notas}\n`;
-  }
-
+  if(direccion) mensaje += `\n*Dirección de entrega:* ${direccion}\n`;
+  if(notas) mensaje += `\n*Notas:* ${notas}\n`;
   mensaje += `\n¡Gracias!`;
 
-  const url = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
-  window.open(url, '_blank');
+  window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`, '_blank');
 
   btnEfectivo.disabled = false;
   btnTransferencia.disabled = false;
 }
 
-/* ---------- Inicialización ---------- */
-document.getElementById('btnEfectivo').addEventListener('click', () => procesarYEnviarPedido('💵 Efectivo'));
-document.getElementById('btnTransferencia').addEventListener('click', () => procesarYEnviarPedido('💳 Transferencia'));
+document.getElementById('btnEfectivo').addEventListener('click', () => procesarPedido('💵 Efectivo'));
+document.getElementById('btnTransferencia').addEventListener('click', () => procesarPedido('💳 Transferencia'));
 
-renderMenu();
 renderOrder();
 </script>
 </body>
