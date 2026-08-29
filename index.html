@@ -269,7 +269,7 @@ const TOPPINGS_DORILOCOS = ['Jícama', 'Zanahoria', 'Pepino', 'Cueritos', 'Cacah
 
 const GROUP_ICON = { toppings: '🧁', salsas: '🌶️', doritos: '🌽', dorilocos_toppings: '🧂' };
 
-/* MENÚ BASE DE FÁBRICA */
+/* MENÚ BASE DE FÁBRICA SIN GELATINA DE MANGO */
 const MENU_BASE = [
   { id: 'plat_fritos', name: 'Plátanos fritos', price: 40, emoji: '🍌', cat: 'snacks',
     customizeLabel: '🧁 Elige tus toppings',
@@ -297,9 +297,6 @@ const MENU_BASE = [
     customizeLabel: '🧁 Elige tus toppings',
     customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
   { id: 'fruta_crema', name: 'Fruta con crema', price: 40, emoji: '🍇', cat: 'postres',
-    customizeLabel: '🧁 Elige tus toppings',
-    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
-  { id: 'gelatina_mango', name: 'Gelatina de mango con coco y fruta de mango', price: 40, emoji: '🥭', cat: 'postres',
     customizeLabel: '🧁 Elige tus toppings',
     customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
   { id: 'cheese_zarza', name: 'Cheesecake zarzamora', price: 50, emoji: '🍰', cat: 'postres' },
