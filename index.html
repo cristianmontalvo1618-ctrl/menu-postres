@@ -173,16 +173,12 @@
 
     <div class="mb-4">
       <h3 class="font-display text-sm uppercase tracking-wide text-[var(--berry)] mb-2">🧂 Snacks</h3>
-      <div id="menuSnacks" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <p class="text-xs text-gray-500 col-span-3">Cargando productos...</p>
-      </div>
+      <div id="menuSnacks" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
     </div>
 
     <div>
       <h3 class="font-display text-sm uppercase tracking-wide text-[var(--berry)] mb-2">🍓 Postres</h3>
-      <div id="menuPostres" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <p class="text-xs text-gray-500 col-span-3">Cargando productos...</p>
-      </div>
+      <div id="menuPostres" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
     </div>
   </section>
 
@@ -228,6 +224,7 @@
 
 </main>
 
+<!-- MODAL DINÁMICO DE TOPPINGS -->
 <div id="toppingModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[var(--cacao)]/60 p-4">
   <div class="modal-in bg-[var(--paper)] rounded-2xl shadow-2xl max-w-md w-full p-5 max-h-[88vh] flex flex-col">
     <div class="flex items-start justify-between mb-2 gap-3">
@@ -245,7 +242,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA6TrIIVAFJ96F0LLimPDC4M4Htbo7PF8",
@@ -263,6 +260,7 @@ const db = getFirestore(app);
 const NUMERO_WHATSAPP = "525579125499";
 const MINIMO_DOMICILIO = 150;
 
+/* LISTAS DE TOPPINGS BASE */
 const TOPPINGS_DULCES = ['Chispas de chocolate', 'Chispas de colores', 'Nuez', 'Granola', 'Gotas de chocolate', 'Bombones', 'Lunetas', 'Krunchis', 'Coco rallado', 'Oreo', 'Nutella', 'Mermelada de fresa', 'Miel', 'Lechera', 'Fresas', 'Plátano'];
 const TOPPINGS_PLATANOS = ['Crema', 'Lechera', 'Granillo de chocolate', 'Mermelada de fresa'];
 const SALSAS_BONELESS = ['BBQ', 'Mango Habanero', 'Fresa Hot'];
@@ -271,43 +269,86 @@ const TOPPINGS_DORILOCOS = ['Jícama', 'Zanahoria', 'Pepino', 'Cueritos', 'Cacah
 
 const GROUP_ICON = { toppings: '🧁', salsas: '🌶️', doritos: '🌽', dorilocos_toppings: '🧂' };
 
-const CUSTOM_CONFIGS = {
-  'toppings_platanos': { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_PLATANOS } ] },
-  'boneless': { groups: [ { id: 'salsas', label: 'Salsas', type: 'multi', min: 1, max: SALSAS_BONELESS.length, options: SALSAS_BONELESS } ] },
-  'dorilocos': { groups: [ { id: 'doritos', label: 'Tipo de Doritos', type: 'single', min: 1, max: 1, options: TIPOS_DORITOS }, { id: 'dorilocos_toppings', label: 'Toppings', type: 'multi', min: 1, max: TOPPINGS_DORILOCOS.length, options: TOPPINGS_DORILOCOS } ] },
-  'toppings_dulces': { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] }
-};
+/* MENÚ BASE DE FÁBRICA */
+const MENU_BASE = [
+  { id: 'plat_fritos', name: 'Plátanos fritos', price: 40, emoji: '🍌', cat: 'snacks',
+    customizeLabel: '🧁 Elige tus toppings',
+    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_PLATANOS } ] } },
+  { id: 'plat_capeados', name: 'Plátanos capeados', price: 45, emoji: '🍌', cat: 'snacks',
+    customizeLabel: '🧁 Elige tus toppings',
+    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_PLATANOS } ] } },
+  { id: 'boneless', name: 'Boneless', price: 90, emoji: '🍗', cat: 'snacks',
+    customizeLabel: '🌶️ Elige tu salsa',
+    customize: { groups: [ { id: 'salsas', label: 'Salsas', type: 'multi', min: 1, max: SALSAS_BONELESS.length, options: SALSAS_BONELESS } ] } },
+  { id: 'papas_franc', name: 'Papas a la Francesa', price: 50, emoji: '🍟', cat: 'snacks' },
+  { id: 'dorilocos', name: 'Dorilocos', price: 50, emoji: '🌶️', cat: 'snacks',
+    customizeLabel: '🌽 Personalízalo',
+    customize: { groups: [
+      { id: 'doritos', label: 'Tipo de Doritos', type: 'single', min: 1, max: 1, options: TIPOS_DORITOS },
+      { id: 'dorilocos_toppings', label: 'Toppings', type: 'multi', min: 1, max: TOPPINGS_DORILOCOS.length, options: TOPPINGS_DORILOCOS }
+    ] } },
+  { id: 'waffle', name: 'Waffle', price: 50, emoji: '🧇', cat: 'postres',
+    customizeLabel: '🧁 Elige tus toppings',
+    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
+  { id: 'fresas', name: 'Fresas con crema', price: 40, emoji: '🍓', cat: 'postres',
+    customizeLabel: '🧁 Elige tus toppings',
+    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
+  { id: 'duraznos', name: 'Duraznos con crema', price: 35, emoji: '🍑', cat: 'postres',
+    customizeLabel: '🧁 Elige tus toppings',
+    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
+  { id: 'fruta_crema', name: 'Fruta con crema', price: 40, emoji: '🍇', cat: 'postres',
+    customizeLabel: '🧁 Elige tus toppings',
+    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
+  { id: 'gelatina_mango', name: 'Gelatina de mango con coco y fruta de mango', price: 40, emoji: '🥭', cat: 'postres',
+    customizeLabel: '🧁 Elige tus toppings',
+    customize: { groups: [ { id: 'toppings', label: 'Toppings', type: 'multi', min: 2, max: 4, options: TOPPINGS_DULCES } ] } },
+  { id: 'cheese_zarza', name: 'Cheesecake zarzamora', price: 50, emoji: '🍰', cat: 'postres' },
+  { id: 'cheese_choco', name: 'Cheesecake chocolate', price: 50, emoji: '🍫', cat: 'postres' },
+];
 
-let MENU = [];
+let MENU = [...MENU_BASE];
 let order = [];
 let pendingItem = null;
 let selections = {};
 
 const fmt = n => n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
-// LECTURA EN TIEMPO REAL DESDE FIREBASE
+// LECTURA DINÁMICA DE FIREBASE COMBINANDO PRODUCTOS Y TOPPINGS NUEVOS
 onSnapshot(collection(db, "productos"), (snapshot) => {
-  MENU = [];
+  const productosNube = [];
   snapshot.forEach((doc) => {
     const data = doc.data();
     if (data.disponible !== false) {
-      let custom = null;
+      let customConfig = null;
       let label = '';
-      if (data.customType && CUSTOM_CONFIGS[data.customType]) {
-        custom = CUSTOM_CONFIGS[data.customType];
-        label = data.customType === 'boneless' ? '🌶️ Elige tu salsa' : (data.customType === 'dorilocos' ? '🌽 Personalízalo' : '🧁 Elige tus toppings');
+
+      if (data.toppings && Array.isArray(data.toppings) && data.toppings.length > 0) {
+        customConfig = {
+          groups: [{
+            id: 'toppings',
+            label: 'Opciones / Toppings',
+            type: (data.maxTop === 1) ? 'single' : 'multi',
+            min: Number(data.minTop) || 1,
+            max: Number(data.maxTop) || data.toppings.length,
+            options: data.toppings
+          }]
+        };
+        label = '🧁 Elige tus opciones';
       }
-      MENU.push({
+
+      productosNube.push({
         id: doc.id,
         name: data.name,
         price: Number(data.price),
-        emoji: data.emoji || '🍴',
+        emoji: data.emoji || '🍰',
         cat: (data.cat || 'postres').toLowerCase(),
-        customize: custom,
+        customize: customConfig,
         customizeLabel: label
       });
     }
   });
+
+  MENU = [...MENU_BASE, ...productosNube];
   renderMenu();
   updateMenuQtyBadges();
 });
@@ -317,12 +358,6 @@ function renderMenu(){
   const postresEl = document.getElementById('menuPostres');
   snacksEl.innerHTML = '';
   postresEl.innerHTML = '';
-
-  const snacks = MENU.filter(i => i.cat === 'snacks');
-  const postres = MENU.filter(i => i.cat === 'postres');
-
-  if(snacks.length === 0) snacksEl.innerHTML = '<p class="text-xs text-gray-400 col-span-2 sm:col-span-3">No hay snacks disponibles por ahora.</p>';
-  if(postres.length === 0) postresEl.innerHTML = '<p class="text-xs text-gray-400 col-span-2 sm:col-span-3">No hay postres disponibles por ahora.</p>';
 
   MENU.forEach(item => {
     const card = document.createElement('button');
@@ -624,6 +659,7 @@ async function procesarPedido(metodoPago){
 document.getElementById('btnEfectivo').addEventListener('click', () => procesarPedido('💵 Efectivo'));
 document.getElementById('btnTransferencia').addEventListener('click', () => procesarPedido('💳 Transferencia'));
 
+renderMenu();
 renderOrder();
 </script>
 </body>
