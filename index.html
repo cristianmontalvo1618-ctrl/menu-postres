@@ -649,8 +649,12 @@ async function procesarPedido(metodoPago){
 
   window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`, '_blank');
 
-  btnEfectivo.disabled = false;
-  btnTransferencia.disabled = false;
+  // LIMPIEZA AUTOMÁTICA DE LA CESTA Y CAMPOS PARA UN NUEVO PEDIDO
+  order = [];
+  document.getElementById('clienteNotas').value = '';
+  document.getElementById('clienteDireccion').value = '';
+  renderOrder();
+  updateMenuQtyBadges();
 }
 
 document.getElementById('btnEfectivo').addEventListener('click', () => procesarPedido('💵 Efectivo'));
