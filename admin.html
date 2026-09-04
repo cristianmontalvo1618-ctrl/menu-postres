@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración | Las 3 Delicias</title>
+  <style>
+    :root {
+      --bg-main: #fdf8f5;
+      --primary: #e11d48;
+      --primary-dark: #be123c;
+      --accent-snack: #d97706;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg-main); color: var(--text-main); }
+    
+    /* PANTALLA DE ACCESO POR PIN */
+    #auth-screen {
+      position: fixed;
+      inset: 0;
+      background: #1f2937;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .pin-card {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .pin-card h2 { color: var(--primary); margin-bottom: 8px; font-size: 1.5rem; }
+    .pin-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
+    .pin-input {
+      width: 100%;
+      letter-spacing: 10px;
+      font-size: 2rem;
+      text-align: center;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid #fed7aa;
+      outline: none;
+      margin-bottom: 15px;
+    }
+    .pin-input:focus { border-color: var(--primary); }
+    .btn-pin {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-pin:hover { background: var(--primary-dark); }
+    #pin-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; }
+
+    /* CONTENIDO DEL PANEL */
+    #panel-content { display: none; padding: 25px; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #fed7aa;
+    }
+    .marca h1 { font-size: 1.8rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+    .marca p { font-size: 0.9rem; color: var(--text-muted); }
+    .btn-logout { background: #e5e7eb; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #374151; }
+
+    /* Pestañas */
+    .tabs-nav { display: flex; gap: 10px; margin-bottom: 25px; }
+    .tab-btn {
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: 1px solid #fed7aa;
+      background: #fff;
+      color: var(--text-muted);
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .seccion-tab { display: none; }
+    .seccion-tab.active { display: block; }
+
+    /* Métricas */
+    .metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .card-metrica {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+      border: 1px solid #ffedd5;
+    }
+    .card-metrica span { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+    .card-metrica h2 { font-size: 2rem; color: var(--text-main); margin-top: 6px; font-weight: 800; }
+    .card-metrica h2.dinero { color: var(--success); }
+
+    .grid-pedidos { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    
+    .pedido-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border-left: 6px solid var(--accent-snack);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .pedido-card.completado { border-left-color: var(--success); opacity: 0.75; }
+    
+    .btn-delete {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+    .btn-delete:hover { opacity: 1; transform: scale(1.1); }
+
+    .pedido-items { background: #fdfaf7; border-radius: 10px; padding: 12px 12px 12px 25px; margin: 10px 0; border: 1px dashed #fed7aa; }
+    .pedido-items li { font-size: 0.9rem; margin-bottom: 4px; }
+    
+    .btn-completar {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* Formulario Catálogo */
+    .form-nuevo-prod {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid #fed7aa;
+      max-width: 650px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color: var(--text-main); }
+    .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 0.95rem; }
+    .btn-save { background: var(--success); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+
+    .toppings-config-box {
+      background: #fffbeb;
+      border: 1px dashed #f59e0b;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .tabla-catalogo { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .tabla-catalogo th, .tabla-catalogo td { padding: 14px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+    .tabla-catalogo th { background: #f8fafc; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); }
+    .btn-toggle-stock { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; border: none; cursor: pointer; }
+    .btn-toggle-stock.disponible { background: #dcfce7; color: #166534; }
+    .btn-toggle-stock.agotado { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+
+  <!-- PANTALLA DE ACCESO PIN -->
+  <div id="auth-screen">
+    <div class="pin-card">
+      <h2>🔒 Acceso Seguro</h2>
+      <p>Ingresa el PIN de seguridad del negocio</p>
+      <input type="password" id="pin-field" class="pin-input" maxlength="4" placeholder="••••" autofocus>
+      <button class="btn-pin" onclick="verificarPIN()">Desbloquear Panel</button>
+      <div id="pin-error">PIN Incorrecto. Intenta de nuevo.</div>
+    </div>
+  </div>
+
+  <!-- PANEL PRINCIPAL -->
+  <div id="panel-content">
+    <header>
+      <div class="marca">
+        <h1>🍰 Las 3 Delicias</h1>
+        <p>Panel de Control y Catálogo</p>
+      </div>
+      <button class="btn-logout" onclick="cerrarSesion()">🔒 Bloquear</button>
+    </header>
+
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="cambiarTab('tab-pedidos', this)">🧾 Pedidos en Vivo</button>
+      <button class="tab-btn" onclick="cambiarTab('tab-catalogo', this)">📦 Gestión de Menú (Productos y Toppings)</button>
+    </div>
+
+    <!-- PESTAÑA 1: PEDIDOS -->
+    <section id="tab-pedidos" class="seccion-tab active">
+      <div class="metricas">
+        <div class="card-metrica">
+          <span>Total Cobrado</span>
+          <h2 class="dinero" id="total-cobrado">$0.00</h2>
+        </div>
+        <div class="card-metrica">
+          <span>Activos</span>
+          <h2 id="pedidos-activos">0</h2>
+        </div>
+        <div class="card-metrica">
+          <span>Entregados</span>
+          <h2 id="pedidos-entregados">0</h2>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button onclick="limpiarTodo()" style="background:#fee2e2; color:#991b1b; border:none; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer;">🧹 Corte de Caja</button>
+      </div>
+
+      <main class="grid-pedidos" id="contenedor-pedidos"></main>
+    </section>
+
+    <!-- PESTAÑA 2: GESTIÓN DE PRODUCTOS Y TOPPINGS -->
+    <section id="tab-catalogo" class="seccion-tab">
+      <div class="form-nuevo-prod">
+        <h3 style="margin-bottom: 15px; color: var(--primary);">➕ Agregar Nuevo Producto</h3>
+        
+        <div class="form-group">
+          <label>Nombre del Producto:</label>
+          <input type="text" id="prod-nombre" class="form-control" placeholder="Ej. Crepa Dulce">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Precio ($ MXN):</label>
+            <input type="number" id="prod-precio" class="form-control" placeholder="50">
+          </div>
+          <div class="form-group">
+            <label>Emoji identificador:</label>
+            <input type="text" id="prod-emoji" class="form-control" placeholder="🥞">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Categoría:</label>
+          <select id="prod-cat" class="form-control">
+            <option value="postres">🍓 Postres</option>
+            <option value="snacks">🧂 Snacks</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="chk-lleva-toppings" onchange="toggleToppingsConfig()">
+            <span>¿Lleva Toppings o Lista de Opciones personalizables?</span>
+          </label>
+        </div>
+
+        <div id="box-toppings" class="toppings-config-box">
+          <div class="form-group">
+            <label>Lista de Toppings/Opciones (separadas por coma):</label>
+            <textarea id="prod-toppings-lista" class="form-control" rows="3" placeholder="Nutella, Lechera, Fresa, Plátano, Nuez, Granola, Chispas de chocolate"></textarea>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label>Mínimo a elegir:</label>
+              <input type="number" id="prod-min-top" class="form-control" value="1" min="1">
+            </div>
+            <div class="form-group">
+              <label>Máximo permitido:</label>
+              <input type="number" id="prod-max-top" class="form-control" value="4" min="1">
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-save" id="btn-guardar-prod">Guardar Producto en el Menú</button>
+      </div>
+
+      <h3 style="margin-bottom: 15px;">Productos Agregados desde el Administrador</h3>
+      <table class="tabla-catalogo">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Toppings / Opciones</th>
+            <th>Disponibilidad</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="lista-catalogo-body"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    // ==========================================
+    // CONFIGURACIÓN DE SEGURIDAD (CAMBIA TU PIN AQUÍ)
+    // ==========================================
+    const PIN_CORRECTO = "1234";
+
+    function verificarPIN() {
+      const pin = document.getElementById("pin-field").value;
+      if (pin === PIN_CORRECTO) {
+        sessionStorage.setItem("admin_autenticado", "true");
+        mostrarPanel();
+      } else {
+        document.getElementById("pin-error").style.display = "block";
+        document.getElementById("pin-field").value = "";
+      }
+    }
+
+    function mostrarPanel() {
+      document.getElementById("auth-screen").style.display = "none";
+      document.getElementById("panel-content").style.display = "block";
+    }
+
+    function cerrarSesion() {
+      sessionStorage.removeItem("admin_autenticado");
+      location.reload();
+    }
+
+    // Auto-login si ya metió el PIN en esta sesión
+    if (sessionStorage.getItem("admin_autenticado") === "true") {
+      mostrarPanel();
+    }
+
+    // Escuchar tecla Enter en el input de PIN
+    document.getElementById("pin-field").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") verificarPIN();
+    });
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA6TrIIVAFJ96F0LLimPDC4M4Htbo7PF8",
+      authDomain: "las-3-delicias.firebaseapp.com",
+      projectId: "las-3-delicias",
+      storageBucket: "las-3-delicias.firebasestorage.app",
+      messagingSenderId: "336278281990",
+      appId: "1:336278281990:web:3adda177122a6992774887",
+      measurementId: "G-F54DQ7C2W7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.cambiarTab = (tabId, btn) => {
+      document.querySelectorAll('.seccion-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    };
+
+    window.toggleToppingsConfig = () => {
+      const chk = document.getElementById("chk-lleva-toppings").checked;
+      document.getElementById("box-toppings").style.display = chk ? "block" : "none";
+    };
+
+    // Escuchar pedidos
+    const qPedidos = query(collection(db, "pedidos"), orderBy("fecha", "desc"));
+    onSnapshot(qPedidos, (snapshot) => {
+      let html = "";
+      let totalDinero = 0, activos = 0, entregados = 0;
+
+      snapshot.forEach((documento) => {
+        const p = documento.data();
+        const id = documento.id;
+        const esCompletado = p.estado === "Entregado";
+
+        if (esCompletado) { entregados++; totalDinero += Number(p.total || 0); }
+        else { activos++; }
+
+        const itemsHTML = (p.productos || []).map(item => `<li><strong>${item.cant || 1}x</strong> ${item.nombre}</li>`).join("");
+
+        html += `
+          <div class="pedido-card ${esCompletado ? 'completado' : ''}">
+            <button class="btn-delete" onclick="window.eliminarPedido('${id}')">🗑️</button>
+            <div>
+              <span style="font-weight:bold; font-size:1.1rem;">#${id.slice(-5).toUpperCase()}</span> - <small>${p.tipoEntrega || 'Local'}</small>
+              <div style="margin-top:5px; font-size:0.9rem;">
+                <strong>${p.cliente || 'Cliente'}</strong>
+                ${p.direccion ? `<p style="font-size:0.8rem;">📍 ${p.direccion}</p>` : ''}
+                ${p.notas ? `<p style="font-size:0.8rem; color:#92400e;">📝 ${p.notas}</p>` : ''}
+              </div>
+              <ul class="pedido-items">${itemsHTML}</ul>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.1rem; margin-top:5px;">
+                <span>${p.metodoPago || 'Efectivo'}</span>
+                <span style="color:var(--primary);">$${Number(p.total || 0).toFixed(2)}</span>
+              </div>
+              ${esCompletado 
+                ? `<button class="btn-completar" style="background:#10b981;" disabled>✓ Entregado</button>`
+                : `<button class="btn-completar" onclick="window.marcarEntregado('${id}')">Marcar Entregado</button>`
+              }
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById("contenedor-pedidos").innerHTML = html || "<p style='color:#6b7280;'>No hay pedidos activos.</p>";
+      document.getElementById("total-cobrado").innerText = `$${totalDinero.toFixed(2)}`;
+      document.getElementById("pedidos-activos").innerText = activos;
+      document.getElementById("pedidos-entregados").innerText = entregados;
+    });
+
+    // Escuchar catálogo
+    const qProds = query(collection(db, "productos"));
+    onSnapshot(qProds, (snapshot) => {
+      let html = "";
+      snapshot.forEach((docSnap) => {
+        const prod = docSnap.data();
+        const id = docSnap.id;
+        const disponible = prod.disponible !== false;
+        const tieneTop = prod.toppings && prod.toppings.length > 0;
+
+        html += `
+          <tr>
+            <td><strong>${prod.emoji || '🍴'} ${prod.name}</strong></td>
+            <td><span style="text-transform:uppercase; font-size:0.8rem; font-weight:bold; color:var(--text-muted);">${prod.cat}</span></td>
+            <td><strong>$${prod.price}</strong></td>
+            <td style="font-size:0.85rem; color:#4b5563;">
+              ${tieneTop ? `✨ ${prod.toppings.length} opciones (Elige ${prod.minTop || 1} a ${prod.maxTop || prod.toppings.length})` : '—'}
+            </td>
+            <td>
+              <button class="btn-toggle-stock ${disponible ? 'disponible' : 'agotado'}" onclick="window.toggleStock('${id}', ${disponible})">
+                ${disponible ? '🟢 Disponible' : '🔴 Agotado'}
+              </button>
+            </td>
+            <td>
+              <button onclick="window.eliminarProducto('${id}')" style="background:none; border:none; cursor:pointer; font-size:1.1rem;">🗑️</button>
+            </td>
+          </tr>
+        `;
+      });
+      document.getElementById("lista-catalogo-body").innerHTML = html || "<tr><td colspan='6'>No hay productos adicionales agregados.</td></tr>";
+    });
+
+    window.marcarEntregado = async (id) => updateDoc(doc(db, "pedidos", id), { estado: "Entregado" });
+    window.eliminarPedido = async (id) => { if(confirm("¿Eliminar pedido?")) deleteDoc(doc(db, "pedidos", id)); };
+    window.limpiarTodo = async () => {
+      if(confirm("¿Vaciar pedidos del día?")) {
+        const snap = await getDocs(collection(db, "pedidos"));
+        snap.forEach(d => deleteDoc(doc(db, "pedidos", d.id)));
+      }
+    };
+
+    window.toggleStock = async (id, estadoActual) => updateDoc(doc(db, "productos", id), { disponible: !estadoActual });
+    window.eliminarProducto = async (id) => { if(confirm("¿Eliminar producto del catálogo?")) deleteDoc(doc(db, "productos", id)); };
+
+    document.getElementById("btn-guardar-prod").addEventListener("click", async () => {
+      const nombre = document.getElementById("prod-nombre").value.trim();
+      const precio = Number(document.getElementById("prod-precio").value);
+      const emoji = document.getElementById("prod-emoji").value.trim() || "🍰";
+      const cat = document.getElementById("prod-cat").value;
+      const llevaToppings = document.getElementById("chk-lleva-toppings").checked;
+
+      if(!nombre || isNaN(precio) || precio <= 0) return alert("Completa los datos correctamente.");
+
+      let toppingsList = [];
+      let minTop = 1;
+      let maxTop = 1;
+
+      if(llevaToppings) {
+        const textoTop = document.getElementById("prod-toppings-lista").value.trim();
+        if(!textoTop) return alert("Escribe al menos un topping/opción.");
+        toppingsList = textoTop.split(",").map(t => t.trim()).filter(t => t.length > 0);
+        minTop = Number(document.getElementById("prod-min-top").value) || 1;
+        maxTop = Number(document.getElementById("prod-max-top").value) || toppingsList.length;
+      }
+
+      await addDoc(collection(db, "productos"), {
+        name: nombre,
+        price: precio,
+        emoji: emoji,
+        cat: cat,
+        disponible: true,
+        toppings: toppingsList,
+        minTop: minTop,
+        maxTop: maxTop
+      });
+
+      document.getElementById("prod-nombre").value = "";
+      document.getElementById("prod-precio").value = "";
+      document.getElementById("prod-emoji").value = "";
+      document.getElementById("prod-toppings-lista").value = "";
+      document.getElementById("chk-lleva-toppings").checked = false;
+      document.getElementById("box-toppings").style.display = "none";
+      alert("¡Producto agregado con éxito!");
+    });
+  </script>
+</body>
+</html>
